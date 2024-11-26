@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(intent, REQUEST_CODE_EDIT_NOTE)
             }
         })
-
     }
 
     private fun SaveData() {
