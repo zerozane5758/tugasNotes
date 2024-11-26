@@ -34,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         _rvNotes = findViewById(R.id.rvNotes)
         val _btnTambah = findViewById<ImageButton>(R.id.btnTambah)
 
+        LoadData()
+
         // Arahkan ke InputActivity ketika tombol Tambah diklik
         _btnTambah.setOnClickListener {
             val intent = Intent(this, InputActivity::class.java)
@@ -44,12 +46,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun HapusData(notes: dcNotes) {
         arNotes.remove(notes)
+        SaveData()
         TampilkanData()
     }
 
 
     private fun TambahData(newNote: dcNotes) {
         arNotes.add(newNote)
+        SaveData()
     }
 
 
@@ -76,6 +80,30 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun SaveData() {
+        val sharedPreferences = getSharedPreferences("NotesSP", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = com.google.gson.Gson()
+        val notesJson = gson.toJson(arNotes)
+        editor.putString("notes_list", notesJson)
+        editor.apply()
+    }
+
+
+    private fun LoadData() {
+        val sharedPreferences = getSharedPreferences("NotesSP", MODE_PRIVATE)
+        val gson = com.google.gson.Gson()
+        val notesJson = sharedPreferences.getString("notes_list", null)
+
+        if (notesJson != null) {
+            val type = object : com.google.gson.reflect.TypeToken<ArrayList<dcNotes>>() {}.type
+            val savedNotes: ArrayList<dcNotes> = gson.fromJson(notesJson, type)
+            arNotes.clear() // Kosongkan list sebelum memuat data dari SharedPreferences
+            arNotes.addAll(savedNotes)
+        }
+    }
+
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK && data != null) {
@@ -101,6 +129,7 @@ class MainActivity : AppCompatActivity() {
                 updatedNote.Nama = updatedName
                 updatedNote.Tanggal = updatedDate
                 updatedNote.Deskripsi = updatedDescription
+                SaveData()
                 TampilkanData()
             }
         }

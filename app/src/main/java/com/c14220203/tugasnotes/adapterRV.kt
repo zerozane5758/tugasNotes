@@ -56,9 +56,9 @@ class adapterRV(private val listNotes: ArrayList<dcNotes>) :
         }
 
         holder._ibStart.setOnClickListener {
-            // Ubah status isFinished
             notes.isFinished = !notes.isFinished
-            notifyItemChanged(position) // Refresh item untuk mencerminkan perubahan
+            saveData(holder.itemView)
+            notifyItemChanged(position)
         }
 
         holder._ibHapus.setOnClickListener {
@@ -70,7 +70,16 @@ class adapterRV(private val listNotes: ArrayList<dcNotes>) :
         }
     }
 
+    private fun saveData(view: View) {
+        val sharedPreferences = view.context.getSharedPreferences("NotesSP", 0)
+        val editor = sharedPreferences.edit()
+        val gson = com.google.gson.Gson()
 
+        // Konversi listNotes menjadi JSON string
+        val notesJson = gson.toJson(listNotes)
+        editor.putString("notes_list", notesJson)
+        editor.apply() // Terapkan perubahan
+    }
 
 
     override fun getItemCount(): Int {
